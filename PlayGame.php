@@ -2,14 +2,24 @@
 
 class PlayGame
 {
+    public function generate()
+    {
+        $generate = range(0, 9);
+        shuffle($generate);
+
+        $guess = array_slice($generate, 0, 5);
+
+        return $guess;
+    }
+
     //Method 1
-    public function guess($guess,$number)
+    public function guess($guess)
     {
         $asterik = 0;
         $dots = 0;
 
         $guess = str_split($guess);
-        $number = str_split($number);
+        $number = str_split(implode("",$this->generate()));
 
         for($i=0; $i<count($guess); $i++)
         {
@@ -29,66 +39,56 @@ class PlayGame
 
         return $result;
     }
+    /** Method 1 */
+
+    function permutate($elements, $perm = array(), &$permArray = array()){
+        $final = [];
+        if(empty($elements)){
+           array_push($permArray,$perm); return;
+        }
+    
+        for($i=0;$i<=count($elements)-1;$i++){
+           array_push($perm,$elements[$i]);
+           $tmp = $elements; array_splice($tmp,$i,1);
+           $this->permutate($tmp,$perm,$permArray);
+           array_pop($perm);
+           $final[] = implode("",$permArray[$i]);
+        }
+
+        return $final;
+    }
 
     public function generate_guess($start = 0)
     {
         if($start == 0)
         {
-            $generate = range(0, 9);
-            shuffle($generate);
-    
-            $guess = array_slice($generate, 0, 5);
+            $guess = $this->generate();
         }
 
         $start++;
         $permutations = [];
-        $newperms = [];
 
         $result = $this->guess(implode("",$guess));
 
         $generate_sum = (int)$result['asterik'] + (int)$result['dots'];
 
-        if($generate_sum == 5)
+        if($result['asterik'] == 5)
         {
-            do 
-            {
-                foreach (array_slice($guess, 1) as $permutation) {
-                    foreach (range(0, count($guess) - 1) as $i) {
-                        yield array_merge(
-                            array_slice($permutation, 0, $i),
-                            [$guess[0]],
-                            array_slice($permutation, $i)
-                        );
-                        dd($permutation);
-
-                    }
-                }
-
-                for ($i = count($guess) - 1; $i >= 0; --$i) {
-                    $newitems = $guess;
-                    list($foo) = array_splice($newitems, $i, 1);
-                    array_unshift($newperms, $foo);
-
-                    dd($guess,$newitems,$newperms);
-
-                    $result = $this->guess(implode("",$permutations[$i]));
-
-                    if($result['asterik'] == 5)
-                    {
-                        return "Correct Guess Is " . $permutations[$i];
-                    }
-
-                }
-
-                //$permutations = $this->permutation($guess);;
-                
-            } while ($start > 0);
-
+            return "Correct Guess Is " . implode("",$guess);
         } else {
-            $this->generate_guess(0);
+            if($generate_sum == 5)
+            {
+                do 
+                {
+                    $permutations = $this->permutate($guess);
+                } while ($start > 0);
+    
+            } else {
+                $this->generate_guess(0);
+            }
         }
 
-        /*for($i = 0; $i < count($permutations); $i++)
+        for($i = 0; $i < count($permutations); $i++)
         {
             $result = $this->guess(implode("",$permutations[$i]));
 
@@ -96,19 +96,7 @@ class PlayGame
             {
                 return "Correct Guess Is " . $permutations[$i];
             }
-        }*/
-
-        /*if($result['asterik'] < 5 && $result['asterik'] > 0)
-        {
-            if($result['dots'] > 0)
-            {
-                $new_guess = array_slice($guess, 4, $result['asterik']);
-                shuffle($new_guess);
-                array_push($guess, $new_guess);
-                $result = $this->guess(implode("",$guess));
-            }
-        }*/
-
-        dd($generate,implode("",$guess),$permutations,$result,$new_result);
+        }
+        
     }
 }
