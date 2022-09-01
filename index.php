@@ -1,14 +1,9 @@
 <?php
 
 include("PlayGame.php");
-include("SecretNumber.php");
-
-$secretObj = new SecretNumber();
-
-$secretNum = $secretObj->generate();
 
 $guessObj = new PlayGame();
 
-$guess = $guessObj->guess("54231",implode("",$secretNum));
+$guess = $guessObj->guess("54231");
 
 var_dump($guess);
